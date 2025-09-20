@@ -1,0 +1,99 @@
+# Basic webapp build using shell scripts and npm
+
+# Package.json file
+filegroup(
+    name = "package_json",
+    srcs = [
+        "package.json",
+        "package-lock.json",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# TypeScript and JavaScript source files
+filegroup(
+    name = "webapp_src",
+    srcs = glob([
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.js",
+        "src/**/*.jsx",
+        "tests/**/*.js",
+        "*.js",
+        "*.json",
+    ]),
+)
+
+# Node modules installation
+sh_binary(
+    name = "install_deps",
+    srcs = ["//bazel/scripts:npm_install.sh"],
+    data = [":package_json"],
+)
+
+# Webpack bundling
+sh_binary(
+    name = "webapp_bundle",
+    srcs = ["//bazel/scripts:webpack_build.sh"],
+    args = [
+        "$(location webpack.config.js)",
+        "$(location package.json)",
+    ],
+    data = [
+        "babel.config.js",
+        "package.json",
+        "tsconfig.json",
+        "webpack.config.js",
+        ":package_json",
+        ":webapp_src",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# ESLint
+sh_test(
+    name = "lint",
+    srcs = ["//bazel/scripts:eslint.sh"],
+    args = [
+        "$(location .eslintrc.json)",
+        "$(location package.json)",
+    ],
+    data = [
+        ".eslintrc.json",
+        "package.json",
+        ":package_json",
+        ":webapp_src",
+    ],
+)
+
+# TypeScript type checking
+sh_test(
+    name = "check_types",
+    srcs = ["//bazel/scripts:check_types.sh"],
+    args = [
+        "$(location tsconfig.json)",
+        "$(location package.json)",
+    ],
+    data = [
+        "package.json",
+        "tsconfig.json",
+        ":package_json",
+        ":webapp_src",
+    ],
+)
+
+# Jest testing
+sh_test(
+    name = "webapp_test",
+    srcs = ["//bazel/scripts:jest_test.sh"],
+    args = [
+        "$(location package.json)",
+    ],
+    data = [
+        "jest.config.js",
+        ":package_json",
+        ":webapp_src",
+    ] + glob([
+        "tests/**/*",
+    ]),
+)

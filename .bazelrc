@@ -1,0 +1,35 @@
+# Build configuration
+build --enable_platform_specific_config
+build --incompatible_strict_action_env
+# Using WORKSPACE approach instead of bzlmod for manual dependency control
+# build --enable_bzlmod
+
+# Go configuration
+# Removed race flag as it requires CGO which we disable for plugin builds
+# build --@rules_go//go/config:race
+
+# Test configuration
+test --test_output=errors
+test --test_summary=short
+
+# Debug configuration
+build:debug --compilation_mode=dbg
+build:debug --strip=never
+
+# Release configuration
+build:release --compilation_mode=opt
+build:release --strip=always
+
+# Remote cache configuration (opcional)
+build:remote --remote_cache=grpc://your-cache-server:port
+build:remote --remote_timeout=3600
+
+# Platform specific
+build:linux --platforms=@rules_go//go/toolchain:linux_amd64
+build:darwin --platforms=@rules_go//go/toolchain:darwin_amd64
+build:windows --platforms=@rules_go//go/toolchain:windows_amd64
+
+# Performance optimizations for Bazel 8
+build --experimental_reuse_sandbox_directories
+build --experimental_worker_for_repo_fetching=platform
+# Enable workspace for manual dependency management

@@ -1,0 +1,14 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@rules_go//go:def.bzl", "go_library")
+
+# gazelle:prefix github.com/itstar-tech/mattermost-plugin-demo
+gazelle(name = "gazelle")
+
+go_library(
+    name = "mattermost-plugin-demo",
+    srcs = ["plugin.go"],
+    embedsrcs = ["plugin.json"],
+    importpath = "github.com/itstar-tech/mattermost-plugin-demo",
+    visibility = ["//visibility:public"],
+    deps = ["@com_github_mattermost_mattermost_server_public//model"],
+)
