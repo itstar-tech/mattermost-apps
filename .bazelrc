@@ -1,3 +1,10 @@
+# Don't create bazel-* symlinks in the WORKSPACE directory.
+# These require .gitignore and may scare users. Also impact in the performance of jetbrains IDE, it's a workaround for
+# https://github.com/bazelbuild/rules_typescript/issues/12 which affects the common case of
+# having `tsconfig.json` in the WORKSPACE directory. Instead, you should run
+# `bazel info output_base` to find out where the outputs went.
+build --symlink_prefix=/
+
 # Build configuration
 build --enable_platform_specific_config
 build --incompatible_strict_action_env
