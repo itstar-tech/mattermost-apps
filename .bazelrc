@@ -40,3 +40,6 @@ build:windows --platforms=@rules_go//go/toolchain:windows_amd64
 build --experimental_reuse_sandbox_directories
 build --experimental_worker_for_repo_fetching=platform
 # Enable workspace for manual dependency management
+
+# Honor the skipLibCheck setting from tsconfig.json
+common --@aspect_rules_ts//ts:skipLibCheck=honor_tsconfig

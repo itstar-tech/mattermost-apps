@@ -1,5 +1,11 @@
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@npm//:defs.bzl", "npm_link_all_packages")
 load("@rules_go//go:def.bzl", "go_library")
+
+exports_files(["plugin.json"])
+
+npm_link_all_packages(name = "node_modules")
 
 # gazelle:prefix github.com/itstar-tech/mattermost-plugin-demo
 gazelle(name = "gazelle")
@@ -11,4 +17,10 @@ go_library(
     importpath = "github.com/itstar-tech/mattermost-plugin-demo",
     visibility = ["//visibility:public"],
     deps = ["@com_github_mattermost_mattermost_server_public//model"],
+)
+
+copy_to_bin(
+    name = "plugin",
+    srcs = ["plugin.json"],
+    visibility = ["//webapp:__subpackages__"],
 )
