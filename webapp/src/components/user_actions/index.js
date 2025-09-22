@@ -1,7 +1,7 @@
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {openRootModal} from 'actions';
+import {openRootModal} from '../../actions';
 
 import UserActions from './user_actions';
 

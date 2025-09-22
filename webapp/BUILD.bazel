@@ -37,9 +37,13 @@ ts_project(
         "//:node_modules/@types/react-router-dom",
         "//:node_modules/core-js",
         "//:node_modules/mattermost-redux",
+        "//:node_modules/prop-types",
         "//:node_modules/react",
+        "//:node_modules/react-intl",
         "//:node_modules/react-redux",
+        "//:node_modules/react-router-dom",
         "//:node_modules/redux",
+        "//:node_modules/tslib",
         "//:node_modules/typescript",
     ],
 )
@@ -53,7 +57,7 @@ js_library(
 # Internationalization files
 js_library(
     name = "i18n",
-    srcs = glob(["i18n/*.json"]),
+    srcs = glob(["src/i18n/*.json"]),
 )
 
 # Babel configuration
@@ -96,7 +100,7 @@ js_library(
 # Package.json as data
 js_library(
     name = "package_json",
-    srcs = ["package.json"],
+    deps = ["//:package_json"],
 )
 
 # All webapp targets

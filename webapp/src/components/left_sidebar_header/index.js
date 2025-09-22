@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 
-import {isEnabled} from 'selectors';
+import {isEnabled} from '../../selectors';
 
 import LeftSidebarHeader from './left_sidebar_header';
 

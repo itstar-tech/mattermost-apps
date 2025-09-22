@@ -1,0 +1,13 @@
+{
+    "demoPlugin.pluginName": "Plugin de Demostración",
+    "demoPlugin.configuration": "Configuración",
+    "demoPlugin.settings": "Ajustes",
+    "demoPlugin.enable": "Habilitar",
+    "demoPlugin.disable": "Deshabilitar",
+    "demoPlugin.secretMessage": "Mensaje Secreto",
+    "demoPlugin.customSetting": "Configuración Personalizada",
+    "demoPlugin.userAction": "Acción de Usuario",
+    "demoPlugin.tooltip": "Información",
+    "demoPlugin.sidebar": "Barra Lateral",
+    "demoPlugin.header": "Encabezado"
+}

@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 
-import {isEnabled} from 'selectors';
+import {isEnabled} from '../../selectors';
 
 import LinkTooltip from './link_tooltip';
 

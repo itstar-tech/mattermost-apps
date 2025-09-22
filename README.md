@@ -8,15 +8,52 @@
 **Maintainer:** [@hanzei](https://github.com/hanzei)
 **Co-Maintainer:** [@jfrerich](https://github.com/jfrerich)
 
-This plugin demonstrates the capabilities of a Mattermost plugin. It includes the same build scripts as [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template), but implements all supported server-side hooks and registers a component for each supported client-side integration point. See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details. The plugin also doubles as a testbed for verifying plugin functionality during release testing.
+This plugin demonstrates the capabilities of a Mattermost plugin. It uses Bazel as the build system and implements all
+supported server-side hooks and registers a component for each supported client-side integration point.
+See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details. The plugin also
+doubles as a testbed for verifying plugin functionality during release testing.
 
 Once installed and enabled, you can specify both the channel and user for the demo plugin. If the specified channel or user doesn't exist, the plugin creates it for you.
 
-Feel free to base your own plugin off this repository, removing or modifying components as needed. If you're already familiar with what plugins can do, consider starting from [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template) instead, which includes the same build framework but omits the demo implementations.
+Feel free to base your own plugin off this repository, removing or modifying components as needed.
 
 Note that this plugin is authored for the Mattermost version indicated in the `min_server_version` within [plugin.json](https://github.com/mattermost/mattermost-plugin-demo/blob/master/plugin.json), and is not compatible with earlier releases of Mattermost.
 
-For details on getting started, see [mattermost-plugin-starter-template](https://github.com/mattermost/mattermost-plugin-starter-template).
+## Building the Plugin
+
+This plugin uses Bazel as the build system. To build the plugin:
+
+### Prerequisites
+
+- [Bazel](https://bazel.build/install)
+- Go 1.19+
+- Node.js 20.x
+
+### Building
+
+1. **Build the plugin bundle:**
+    ```bash
+    bazel build //:plugin_bundle
+    ```
+   This generates a `.tar.gz` file ready for distribution.
+
+2. **Build specific components:**
+    ```bash
+    # Build only the server
+    bazel build //server:server_binaries
+    
+    # Build only the webapp
+    bazel build //webapp:webapp_bundle
+    ```
+
+3. **Run tests:**
+    ```bash
+    # Run Go tests
+    bazel test //server:server_test
+    
+    # Run webapp tests
+    bazel test //webapp:test_config
+    ```
 
 ## Releasing this plugin
 

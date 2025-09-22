@@ -7,7 +7,7 @@ import {
 import {getCurrentTeam} from 'mattermost-redux/selectors/entities/teams';
 import {useSelector} from 'react-redux';
 
-import {id} from 'src/manifest';
+import {id} from '../../manifest';
 
 export default function RouterShowcase() {
     const currentTeam = useSelector(getCurrentTeam);

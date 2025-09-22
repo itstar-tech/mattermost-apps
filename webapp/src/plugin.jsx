@@ -2,9 +2,9 @@ import React from 'react';
 
 import {FormattedMessage} from 'react-intl';
 
-import en from 'i18n/en.json';
+import en from './i18n/en.json';
 
-import es from 'i18n/es.json';
+import es from './i18n/es.json';
 
 import manifest from './manifest';
 

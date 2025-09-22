@@ -17,7 +17,7 @@
         }
     },
     "webapp": {
-        "bundle_path": "webapp/dist/main.js"
+        "bundle_path": "webapp/dist/webapp_bundle.js"
     },
     "settings_schema": {
         "header": "Header: Configure your demo plugin settings below.",

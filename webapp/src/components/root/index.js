@@ -1,8 +1,8 @@
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 
-import {closeRootModal} from 'actions';
-import {isRootModalVisible, subMenu} from 'selectors';
+import {closeRootModal} from '../../actions';
+import {isRootModalVisible, subMenu} from '../../selectors';
 
 import Root from './root';
 
