@@ -1,0 +1,199 @@
+# Demo Plugin: Server
+
+The server component of this demo plugin is written in Go and [net/rpc](https://golang.org/pkg/net/rpc/). It relies on [configuration](#plugin-settings) in [plugin.json](../plugin.json) to implement each of the supported hooks.
+
+Each of the included files or folders is outlined below.
+
+## [go.mod](go.mod), [go.sum](go.sum)
+
+These are metadata files managed by [vgo](https://github.com/golang/vgo) for dependency management. While vgo is currently in beta, it will launch as part of the standard Go 1.11 tooling and stabilize in subsequent releases. It was preferred for this project over [dep](https://github.com/golang/dep) since it does not require locating your plugin in the `$GOPATH`.
+
+## [main.go](main.go)
+
+This is the entry point of your plugin binary, that in turn invokes [plugin.ClientMain](https://godoc.org/github.com/mattermost/mattermost-server/plugin#ClientMain) to wire up RPC communication between your plugin and the Mattermost Server.
+
+## [plugin.go](plugin.go)
+
+This file defines the `Plugin` struct, embedding [plugin.MattermostPlugin](https://godoc.org/github.com/mattermost/mattermost-server/plugin#MattermostPlugin) to automatically handle the wiring up the [API](https://godoc.org/github.com/mattermost/mattermost-server/plugin#API) when the plugin starts. It contains public fields that are automatically unmarshalled from [plugin.json](../plugin.json) as part of the `OnConfigurationChange` hook in [configuration.go](configuration.go).
+
+## [activate_hooks.go](activate_hooks.go)
+
+### OnActivate
+
+This demo implementation logs a message to the demo channel whenever the plugin is activated.
+
+### OnDeactivate
+
+This demo implementation logs a message to the demo channel whenever the plugin is deactivated.
+
+## [configuration.go](configuration.go)
+
+### OnConfigurationChange
+
+This demo implementation ensures the configured demo user and channel are created for use
+by the plugin. Also, if a configuration change is detected then the plugin will log a message
+to the demo channel with the updated configuration values.
+
+### OnConfigurationWillBeSaved
+
+This demo implementation logs a message to the demo channel whenever config is going to be saved.
+If the Username config option is set to "invalid" an error will be returned, resulting in the config not getting saved.
+If the Username config option is set to "replaceme" the config value will be replaced with "replaced".
+
+## [channel_hooks.go](channel_hooks.go)
+
+### ChannelHasBeenCreated
+
+This demo implementation logs a message to the demo channel whenever a channel is created.
+
+### UserHasJoinedChannel
+
+This demo implementation logs a message to the demo channel whenever a user joins a channel.
+
+### UserHasLeftChannel
+
+This demo implementation logs a message to the demo channel whenever a user leaves a channel.
+
+## [command_hooks.go](command_hooks.go)
+
+### ExecuteCommand
+
+This demo implementation responds to a `/demo_plugin` command, allowing the user to enable
+or disable the demo plugin's hooks functionality (but leave the command and webapp enabled).
+
+The `/ephemeral` command demonstrates ephemeral interactive usage of SendEphemeralPost,
+UpdateEphemeralPost, and DeleteEphemeralPost.
+
+The `/ephemeral_override` command demonstrates the override of ephemeral posts in the webapp.
+
+The `/crash` command demonstrates crashing the plugin (and the server recovering/restarting the plugin).
+
+The `/dialog` command demonstrates [Interactive Dialogs](https://docs.mattermost.com/developer/interactive-dialogs.html). Use `/dialog help` for its usage in this demo plugin.
+
+The `/interactive` command demonstrates the usage of interactive message buttons.
+
+The `/list_files` command demonstrates the usage of the file search API.
+
+The `/show_mentions` command demonstrates the access to the users and channels mentions found in the command text.
+
+## [http_hooks.go](http_hooks.go)
+
+### ServeHTTP
+
+This demo implementation sends back whether or not the plugin hooks are currently enabled. It
+is used by the web app to recover from a network reconnection and synchronize the state of the
+plugin's hooks.
+
+It also implements a receiver for outgoing webhooks. To utilize that, create an Outgoing Webhook
+using the following configuration:
+- Title: Choose as you want
+- Content Type: `application/json`
+- Channel: Pick any channel
+- Callback URLs: `http://localhost:8065/plugins/com.mattermost.demo-plugin/webhook/outgoing`
+
+Leave the rest of the fields with their default value.
+
+Now post a message in the selected channel. You will see a webhook response, which contains the payload the plugin received.
+
+## [message_hooks.go](message_hooks.go)
+
+### MessageWillBePosted
+
+This demo implementation rejects posts in the demo channel, as well as posts that @-mention
+the demo plugin user.
+
+### MessageWillBeUpdated
+
+This demo implementation rejects posts that @-mention the demo plugin user.
+
+### MessageHasBeenPosted
+
+This demo implementation logs a message to the demo channel whenever a message is posted,
+unless by the demo plugin user itself.
+
+### MessageHasBeenUpdated
+
+This demo implementation logs a message to the demo channel whenever a message is updated,
+unless by the demo plugin user itself.
+
+### MessagesWillBeConsumed
+
+This demo implementation replaces "[SECURE]" message prefix with "[ENCRYPTED]".
+
+## [team_hooks.go](team_hooks.go)
+
+### UserHasJoinedTeam
+
+This demo implementation logs a message to the demo channel in the team whenever a user
+joins the team.
+
+### UserHasLeftTeam
+
+This demo implementation logs a message to the demo channel in the team whenever a user
+leaves the team.
+
+## [login_hooks.go](login_hooks.go)
+
+### UserWillLogIn
+
+This demo implementation rejects login attempts by the demo user.
+
+### UserHasLoggedIn
+
+This demo implementation logs a message to the demo channel whenever a user logs in.
+
+## [user_hooks.go](user_hooks.go)
+
+### UserHasBeenCreated
+
+This demo implementation logs a message to the demo channel whenever a new user is created.
+
+## [file_hooks.go](file_hooks.go)
+
+### FileWillBeUploaded
+
+This demo implementation logs a message to the demo channel whenever a file is uploaded.
+
+## Plugin Settings
+
+The following settings are available in the demo plugin system console page to demonstrate what is available via the [Mattermost Plugin Settings Schema](https://developers.mattermost.com/extend/plugins/manifest-reference/#settings_schema).
+
+![system-console-demo-settings](docs/demo-settings.png)
+
+### Channel Name
+
+A `text` setting type to define the channel that the demo plugin will create and use to post messages.
+
+### Username
+
+A `text` setting type to define the username value that will be given to the demo user.
+
+### Demo User Last Name
+
+A `radio` setting type to define the last name value that will be given to the demo user.
+
+### Text Style
+
+A `dropdown` setting type that changes the text style of messages posted by the demo plugin. Options include italics and bold.
+
+##### Note: this setting doesn't apply to `OnConfigurationChange` log messages.
+
+### Random Secret
+
+A `generated` setting type for a random string that can be generated in the demo plugin settings page of the system console. The demo plugin will look for this value in any message posted and will paste the [secret message](#secret-message) to the demo channel when it is found.
+
+### Secret Message
+
+A `longtext` setting type to define the message that is posted to the demo channel when the [random secret](#random-secret) is posted.
+
+### Enable Mention User
+
+A `bool` setting type to control whether the [mention user](#mention-user) is tagged(@'ed) on all demo plugin messages.
+
+##### Note: this setting doesn't apply to `OnConfigurationChange` log messages.
+
+### Mention User
+
+A `username` setting type to define the user that will be tagged(@'ed) on all demo plugin messages.
+
+##### Note: this setting doesn't apply to `OnConfigurationChange` log messages.

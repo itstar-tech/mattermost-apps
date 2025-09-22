@@ -1,0 +1,65 @@
+load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+exports_files([
+    "plugin.json",
+])
+
+copy_to_bin(
+    name = "plugin",
+    srcs = ["plugin.json"],
+    visibility = ["//demo/webapp:__subpackages__"],
+)
+
+# Assets directory
+filegroup(
+    name = "assets",
+    srcs = glob(["assets/**/*"]),
+)
+
+# Public directory
+filegroup(
+    name = "public",
+    srcs = glob(["public/**/*"]),
+)
+
+# Server binaries tar (preserving server/dist/ structure)
+pkg_tar(
+    name = "server_dist",
+    srcs = ["//demo/server:server_binaries"],
+    package_dir = "server/dist",
+    strip_prefix = "",
+)
+
+# Webapp bundle tar (preserving webapp/dist/ structure)
+pkg_tar(
+    name = "webapp_dist",
+    srcs = ["//demo/webapp:webapp_bundle"],
+    package_dir = "webapp/dist",
+    strip_prefix = "webapp/webapp_bundle",
+)
+
+# Assets tar (preserving assets/ directory structure)
+pkg_tar(
+    name = "assets_tar",
+    srcs = [":assets"],
+    package_dir = "assets",
+    strip_prefix = "assets",
+)
+
+# Plugin bundle tar for distribution
+pkg_tar(
+    name = "plugin_bundle",
+    srcs = [
+        "plugin.json",
+        ":public",
+    ],
+    extension = "tar.gz",
+    package_dir = "com.mattermost.demo-plugin",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":assets_tar",
+        ":server_dist",
+        ":webapp_dist",
+    ],
+)

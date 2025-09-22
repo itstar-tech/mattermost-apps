@@ -1,5 +1,5 @@
 module(
-    name = "mattermost-demo-plugin",
+    name = "mattermost-apps",
     version = "0.10.0",
 )
 

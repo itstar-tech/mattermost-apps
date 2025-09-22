@@ -1,12 +1,8 @@
-load("@aspect_bazel_lib//lib:copy_to_bin.bzl", "copy_to_bin")
 load("@aspect_rules_js//js:defs.bzl", "js_library")
 load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@npm//:defs.bzl", "npm_link_all_packages")
-load("@rules_go//go:def.bzl", "go_library")
-load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
 exports_files([
-    "plugin.json",
     "package.json",
 ])
 
@@ -15,75 +11,19 @@ npm_link_all_packages(name = "node_modules")
 js_library(
     name = "package_json",
     srcs = ["package.json"],
-    visibility = ["//webapp:__pkg__"],
+    visibility = [
+        "//demo/webapp:__pkg__",
+        "//demo2/webapp:__pkg__",
+    ],
 )
 
-# gazelle:prefix github.com/itstar-tech/mattermost-plugin-demo
+# gazelle:prefix github.com/itstar-tech/mattermost-plugins-monorepo
 gazelle(name = "gazelle")
 
-go_library(
-    name = "mattermost-plugin-demo",
-    srcs = ["plugin.go"],
-    embedsrcs = ["plugin.json"],
-    importpath = "github.com/itstar-tech/mattermost-plugin-demo",
-    visibility = ["//visibility:public"],
-    deps = ["@com_github_mattermost_mattermost_server_public//model"],
-)
-
-copy_to_bin(
-    name = "plugin",
-    srcs = ["plugin.json"],
-    visibility = ["//webapp:__subpackages__"],
-)
-
-# Assets directory
 filegroup(
-    name = "assets",
-    srcs = glob(["assets/**/*"]),
-)
-
-# Public directory
-filegroup(
-    name = "public",
-    srcs = glob(["public/**/*"]),
-)
-
-# Server binaries tar (preserving server/dist/ structure)
-pkg_tar(
-    name = "server_dist",
-    srcs = ["//server:server_binaries"],
-    package_dir = "server/dist",
-    strip_prefix = "",
-)
-
-# Webapp bundle tar (preserving webapp/dist/ structure)
-pkg_tar(
-    name = "webapp_dist",
-    srcs = ["//webapp:webapp_bundle"],
-    package_dir = "webapp/dist",
-    strip_prefix = "webapp/webapp_bundle",
-)
-
-# Assets tar (preserving assets/ directory structure)
-pkg_tar(
-    name = "assets_tar",
-    srcs = [":assets"],
-    package_dir = "assets",
-    strip_prefix = "assets",
-)
-
-# Plugin bundle tar for distribution
-pkg_tar(
-    name = "plugin_bundle",
+    name = "all_plugins",
     srcs = [
-        "plugin.json",
-        ":public",
-    ],
-    extension = "tar.gz",
-    package_dir = "com.mattermost.demo-plugin",
-    deps = [
-        ":assets_tar",
-        ":server_dist",
-        ":webapp_dist",
+        "//demo:plugin_bundle",
+        "//demo2:plugin_bundle",
     ],
 )

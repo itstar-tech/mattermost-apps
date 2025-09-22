@@ -1,4 +1,4 @@
-# Demo Plugin
+# Mattermost Plugins Monorepo
 
 [![Build Status](https://img.shields.io/circleci/project/github/mattermost/mattermost-plugin-demo/master.svg)](https://circleci.com/gh/mattermost/mattermost-plugin-demo)
 [![Code Coverage](https://img.shields.io/codecov/c/github/mattermost/mattermost-plugin-demo/master.svg)](https://codecov.io/gh/mattermost/mattermost-plugin-demo)
@@ -8,20 +8,31 @@
 **Maintainer:** [@hanzei](https://github.com/hanzei)
 **Co-Maintainer:** [@jfrerich](https://github.com/jfrerich)
 
-This plugin demonstrates the capabilities of a Mattermost plugin. It uses Bazel as the build system and implements all
-supported server-side hooks and registers a component for each supported client-side integration point.
-See [server/README.md](server/README.md) and [webapp/README.md](webapp/README.md) for more details. The plugin also
-doubles as a testbed for verifying plugin functionality during release testing.
+This is a monorepo containing multiple Mattermost plugins demonstrating various capabilities. It uses Bazel as the build
+system for efficient builds and dependency management across all plugins.
 
-Once installed and enabled, you can specify both the channel and user for the demo plugin. If the specified channel or user doesn't exist, the plugin creates it for you.
+## Plugins
 
-Feel free to base your own plugin off this repository, removing or modifying components as needed.
+### Demo Plugin (`demo/`)
 
-Note that this plugin is authored for the Mattermost version indicated in the `min_server_version` within [plugin.json](https://github.com/mattermost/mattermost-plugin-demo/blob/master/plugin.json), and is not compatible with earlier releases of Mattermost.
+The original demo plugin demonstrating the capabilities of a Mattermost plugin. It implements all supported server-side
+hooks and registers a component for each supported client-side integration point.
 
-## Building the Plugin
+### Demo2 Plugin (`demo2/`)
 
-This plugin uses Bazel as the build system. To build the plugin:
+A second demo plugin with identical functionality but unique plugin ID for testing and development purposes.
+
+Each plugin has its own directory with:
+
+- `server/` - Go server-side code
+- `webapp/` - React/TypeScript client-side code
+- `assets/` - Plugin assets (icons, etc.)
+- `public/` - Static public files
+- `plugin.json` - Plugin manifest
+
+## Building the Plugins
+
+This monorepo uses Bazel as the build system. To build the plugins:
 
 ### Prerequisites
 
@@ -31,71 +42,76 @@ This plugin uses Bazel as the build system. To build the plugin:
 
 ### Building
 
-1. **Build the plugin bundle:**
+1. **Build all plugins:**
     ```bash
-    bazel build //:plugin_bundle
+    bazel build //:all_plugins
     ```
-   This generates a `.tar.gz` file ready for distribution.
+   This generates `.tar.gz` files for all plugins ready for distribution.
 
-2. **Build specific components:**
+2. **Build individual plugins:**
     ```bash
-    # Build only the server
-    bazel build //server:server_binaries
+    # Build demo plugin
+    bazel build //demo:plugin_bundle
     
-    # Build only the webapp
-    bazel build //webapp:webapp_bundle
+    # Build demo2 plugin  
+    bazel build //demo2:plugin_bundle
     ```
 
-3. **Run tests:**
+3. **Build specific components:**
     ```bash
-    # Run Go tests
-    bazel test //server:server_test
+    # Build only a server component
+    bazel build //demo/server:server_binaries
+    
+    # Build only a webapp component
+    bazel build //demo/webapp:webapp_bundle
+    ```
+
+4. **Run tests:**
+    ```bash
+    # Run Go tests for a specific plugin
+    bazel test //demo/server:server_test
+    bazel test //demo2/server:server_test
     
     # Run webapp tests
-    bazel test //webapp:test_config
+    bazel test //demo/webapp:test_config
+    bazel test //demo2/webapp:test_config
     ```
+
+## Monorepo Structure
+
+```
+├── demo/                    # Demo Plugin
+│   ├── assets/
+│   ├── public/
+│   ├── server/
+│   ├── webapp/
+│   ├── plugin.json
+│   └── BUILD.bazel
+├── demo2/                   # Demo2 Plugin
+│   ├── assets/
+│   ├── public/  
+│   ├── server/
+│   ├── webapp/
+│   ├── plugin.json
+│   └── BUILD.bazel
+├── BUILD.bazel              # Root build configuration
+├── MODULE.bazel            # Bazel module configuration
+└── package.json           # Shared Node.js dependencies
+```
+
+## Adding New Plugins
+
+To add a new plugin to the monorepo:
+
+1. Create a new directory (e.g., `my-plugin/`)
+2. Copy the structure from `demo/` or `demo2/`
+3. Update the `plugin.json` with unique ID and name
+4. Create a `BUILD.bazel` file following the existing pattern
+5. Add the new plugin to `//:all_plugins` target in root `BUILD.bazel`
+
+Note that plugins are authored for the Mattermost version indicated in the `min_server_version` within each
+`plugin.json`, and may not be compatible with earlier releases of Mattermost.
 
 ## Releasing this plugin
 
 A new minor version of this plugin is released with every feature release of Mattermost. The new version should be cut until [Code complete](https://docs.mattermost.com/process/feature-release.html#f-t-minus-14-working-days-code-complete).
-
-## How to Release
-
-To trigger a release, follow these steps:
-
-1. **For Patch Release:** Run the following command:
-    ```
-    make patch
-    ```
-   This will release a patch change.
-
-2. **For Minor Release:** Run the following command:
-    ```
-    make minor
-    ```
-   This will release a minor change.
-
-3. **For Major Release:** Run the following command:
-    ```
-    make major
-    ```
-   This will release a major change.
-
-4. **For Patch Release Candidate (RC):** Run the following command:
-    ```
-    make patch-rc
-    ```
-   This will release a patch release candidate.
-
-5. **For Minor Release Candidate (RC):** Run the following command:
-    ```
-    make minor-rc
-    ```
-   This will release a minor release candidate.
-
-6. **For Major Release Candidate (RC):** Run the following command:
-    ```
-    make major-rc
-    ```
-   This will release a major release candidate.
-
